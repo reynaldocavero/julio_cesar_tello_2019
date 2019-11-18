@@ -1,0 +1,116 @@
+
+
+
+create table TUsuario(
+    Id int primary key identity(1,1) not null,
+    email varchar(128) not null,
+    usuario varchar(128) not null,
+    clave varchar(128) not null,
+    activo int not null
+)
+
+insert into TUsuario values('re@hotmail.com','rey','123',1)
+
+alter procedure sp_usuario
+@xml as xml
+as
+begin
+declare @_email varchar(128)='';
+declare @_clave varchar(128)='';
+	SELECT 
+       @_email = T.Item.value('correo[1]', 'varchar(128)'),
+       @_clave = T.Item.value('clave[1]',  'varchar(128)')
+FROM   @xml.nodes('Usuarios/Usuario') AS T(Item)
+
+
+select u.email,u.activo,u.Id from TUsuario u where u.email=@_email and u.clave=@_clave and u.activo=1
+
+end
+
+
+create table TCliente(
+    Id int primary key identity(1,1) not null,
+    nombre varchar(128) not null,
+    tipoDoc varchar(128) not null,
+    numDoc varchar(128) not null,
+    activo int not null
+)
+
+insert into TCliente values('joe','boleta','12345678',1)
+insert into TCliente values('maria','ruc','12345678912',1)
+
+create procedure sp_cliente
+@xml as xml
+as
+begin
+declare @_ruc varchar(128)='';
+	SELECT 
+       @_ruc = T.Item.value('ruc[1]', 'varchar(11)')
+FROM   @xml.nodes('Clientes/Cliente') AS T(Item)
+
+
+select u.numDoc,u.nombre,u.Id from TCliente u where u.numDoc=@_ruc and u.activo=1
+
+end
+
+
+create table TVendedor(
+    Id int primary key identity(1,1) not null,
+    nombre varchar(128) not null,
+    tipoDoc varchar(128) not null,
+    numDoc varchar(128) not null,
+    activo int not null
+)
+
+insert into TVendedor values('joe','dni','12345678',1)
+alter procedure sp_vendedor
+@xml as xml
+as
+begin
+declare @_vendedor varchar(128)='';
+	SELECT 
+       @_vendedor = T.Item.value('vendedor[1]', 'varchar(128)')
+FROM   @xml.nodes('Vendedores/Vendedor') AS T(Item)
+
+
+select u.nombre from TVendedor u where u.nombre like '%'+@_vendedor+'%' and u.activo=1
+
+end
+
+
+select * from TVendedor
+insert into TVendedor values('jonas','dni','66666666',1)
+
+create table TProducto(
+    Id int primary key identity(1,1) not null,
+	codigo varchar(16) not null,
+    producto varchar(128) not null,
+    precio decimal(9,2) not null,
+    stock int not null,
+    activo int not null
+)
+
+insert into TProducto values('C0001','fresa','12.00',20,1)
+alter procedure sp_producto
+@xml as xml
+as
+begin
+declare @_codigo varchar(128)='';
+	SELECT 
+       @_codigo = T.Item.value('codigo[1]', 'varchar(16)')
+FROM   @xml.nodes('Productos/Producto') AS T(Item)
+
+
+select p.Id,p.codigo,p.producto,p.precio,p.stock from TProducto p where p.codigo=@_codigo and p.activo=1
+
+end
+
+alter procedure sp_listaProducto
+as
+begin
+
+
+
+select p.Id,p.codigo,p.producto,p.precio,p.stock from TProducto p where  p.activo=1
+
+end
